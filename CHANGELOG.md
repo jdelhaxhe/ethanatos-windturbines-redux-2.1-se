@@ -11,8 +11,14 @@ Upstream lineage: originally created by **OwnlyMe** (`windturbines`), extended w
 ### Added
 - Finalized technical and balancing specification (`SPEC.md`) for the Factorio 2.1, *Space Exploration* `0.7.64`, and *Wind Speed Changing* `2.1.2` port.
 - Added `CHANGELOG.md` following *Keep a Changelog* format and synced Factorio's in-game `changelog.txt`.
+- Added modular data-driven core (`lib/constants.lua`, `lib/utils.lua`) and Factorio 2.1 prototypes (`prototypes/collision_layers.lua`, `animations.lua`, `entities.lua`, `items.lua`, `recipes.lua`, `technologies.lua`, `se_compat.lua`).
+- Added dedicated Factorio 2.1 `wt-turbine-spacing` collision layer to enforce turbine spacing without polluting vanilla's `resource` layer.
+- Added granular `startup` (`wt-low-vram`, `wt-se-balancing`, `wt-se-block-in-space`) and `runtime-global` (`wt-power-mk1..3`, `wt-locked-power`, `wt-vary-windspeed`, `wt-reference-wind-speed`, `wt-auto-calibrate-wsc`, `wt-max-wind-multiplier`, `wt-update-interval`) settings with full English localization (`locale/en/base.cfg`).
+- Added `data-final-fixes.lua` Space Exploration `>= 0.7.0` integration enforcing `se_allow_in_space = false`, 2.1 `space_tile` collision mask, self-contained placement restriction tooltips, and SE technology alignment (`se-rocket-science-pack` for Mk3).
 
 ### Changed
+- Updated `info.json` to `ethanatos-windturbines-redux-2.1-se` targeting Factorio `2.1` (`base >= 2.1.0`, `? WindSpeedChanging >= 2.1.2`, `(?) space-exploration >= 0.7.0`).
+- Migrated all animations, entities, items, recipes, and technologies to Factorio 2.1 syntax (removed `hr_version`, array `collision_mask`, string `enabled = "false"`, and `recipe.result`; updated asset paths to `__ethanatos-windturbines-redux-2.1-se__`).
 - Rewrote `README.md` with concise player/operator documentation, settings summary, SE & `WindSpeedChanging` compatibility notes, upstream credits (`OwnlyMe` and `Seth401`), and the AI-generated code disclaimer.
 
 ### Removed

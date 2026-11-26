@@ -2,7 +2,12 @@
 Version: 0.20.0
   Info:
     - In-progress Factorio 2.1, Space Exploration (>= 0.7.0), and WindSpeedChanging (>= 2.1.2) port based on OwnlyMe's original mod and Seth401's windturbines-redux.
+  Features:
+    - Migrated metadata, settings, localization, and all prototypes (collision layers, animations, entities, items, recipes, technologies) to Factorio 2.1.
+    - Added per-tier nominal power settings (Mk1/Mk2/Mk3), wind calibration settings, runtime update interval setting, and Space Exploration 0.7 balancing/space-blocking toggles.
+    - Added Space Exploration 0.7 data-final-fixes integration (se_allow_in_space = false, 2.1 space_tile collision layer, placement tooltips, and SE tech alignment with Mk3 at Rocket Science Pack).
   Changes:
+    - Renamed internal mod ID to ethanatos-windturbines-redux-2.1-se and introduced a dedicated wt-turbine-spacing collision layer.
     - Updated SPEC.md, README.md, and added CHANGELOG.md with full upstream credits and AI-generated code disclaimer.
     - Removed legacy Factorio 1.1 root entities.lua and incompatible 1.1 migration scripts ahead of the modular 2.1 rewrite.
 

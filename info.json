@@ -1,9 +1,13 @@
 {
-    "name": "windturbines-redux",
-    "version": "0.19.03",
-    "title": "Wind Turbines (Redux)",
-    "author": "OwnlyMe, Seth",
-    "factorio_version": "1.1",
-    "dependencies": ["base >= 0.18", "? WindSpeedChanging >= 1.1.0", "? WindSpeedChanging-Tweaked >= 1.1.2", "(?) space-exploration >= 0.6.0"],
-    "description": "Animated wind turbines that turn into with the wind direction."
+  "name": "ethanatos-windturbines-redux-2.1-se",
+  "version": "0.19.03",
+  "title": "Wind Turbines (Redux) — Factorio 2.1 & SE",
+  "author": "OwnlyMe, Seth401, ethanatos",
+  "factorio_version": "2.1",
+  "dependencies": [
+    "base >= 2.1.0",
+    "? WindSpeedChanging >= 2.1.2",
+    "(?) space-exploration >= 0.7.0"
+  ],
+  "description": "Animated 3-tier wind turbines that rotate into the wind direction, ported to Factorio 2.1 with Space Exploration 0.7 and WindSpeedChanging 2.1 support."
 }
