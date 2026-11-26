@@ -84,8 +84,8 @@ All functional improvements introduced across `Seth401`'s 18 commits are retaine
 ### 5.1 State Management (`storage`)
 - `storage.turbines[unit_number]`: Active turbine record (`base`, `collision_box`, `surface_index`, `level`, `orientation`, `turbine_render`, `shadow_render`, `last_speed`, `last_offset`).
 - `storage.turbines_by_surface[surface_index][unit_number]`: Surface-partitioned index for O(1) idle skipping and per-surface batch updates.
-- `storage.surface_wind[surface_index]`: Cached `{ orientation, effective_wind, wind_ratio, power_ratio, anim_speed }` for change detection.
-- `storage.surface_is_space[surface_index]`: Cached SE surface classification (`true` for non-solid zones).
+- `storage.surface_wind[surface_index]`: Cached `{ orientation, effective_wind, wind_ratio, power_multiplier, anim_speed, settings_version }` for change detection.
+- `storage.surface_is_solid[surface_index]`: Cached SE surface classification (`true` for `"planet"`/`"moon"` or when SE space blocking is inactive; `false` for non-solid zones).
 - Initialized on `on_init`, re-synchronized on `on_load` (registering the configured `on_nth_tick` handler cleanly for MP determinism), and reconciled on `on_configuration_changed` (rebuilding invalid records, refreshing SE caches, and re-applying power settings).
 
 ### 5.2 Event Lifecycle & Render Objects

@@ -6,10 +6,15 @@ Version: 0.20.0
     - Migrated metadata, settings, localization, and all prototypes (collision layers, animations, entities, items, recipes, technologies) to Factorio 2.1.
     - Added per-tier nominal power settings (Mk1/Mk2/Mk3), wind calibration settings, runtime update interval setting, and Space Exploration 0.7 balancing/space-blocking toggles.
     - Added Space Exploration 0.7 data-final-fixes integration (se_allow_in_space = false, 2.1 space_tile collision layer, placement tooltips, and SE tech alignment with Mk3 at Rocket Science Pack).
+    - Rewrote runtime control stage (control.lua + lib/turbine_manager.lua) for Factorio 2.1 using storage, entity-bound LuaRenderObject animations, engine-level event filters, dynamic on_nth_tick scheduling, per-surface wind caching (O(1) idle skipping), Space Exploration multi-surface airless detection, and live WindSpeedChanging 2.1.2 auto-calibration.
   Changes:
     - Renamed internal mod ID to ethanatos-windturbines-redux-2.1-se and introduced a dedicated wt-turbine-spacing collision layer.
+    - Dynamically scaled electric_buffer_size alongside power_production so high-wind peaks above 100% are never clamped.
     - Updated SPEC.md, README.md, and added CHANGELOG.md with full upstream credits and AI-generated code disclaimer.
     - Removed legacy Factorio 1.1 root entities.lua and incompatible 1.1 migration scripts ahead of the modular 2.1 rewrite.
+  Bugfixes:
+    - Fixed wind orientation modulo (% 31 -> % 32) so all 32 directional sprites are reachable without heading jumps (snapping to 16 even steps in Low-VRAM mode).
+    - Fixed legacy duplicate on_entity_died registration, global SCRIPT_KILL variable, and Factorio 1.1 runtime API usage (global, created_entity, rendering.destroy).
 
 ---------------------------------------------------------------------------------------------------
 Version: 0.19.03

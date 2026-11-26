@@ -15,11 +15,17 @@ Upstream lineage: originally created by **OwnlyMe** (`windturbines`), extended w
 - Added dedicated Factorio 2.1 `wt-turbine-spacing` collision layer to enforce turbine spacing without polluting vanilla's `resource` layer.
 - Added granular `startup` (`wt-low-vram`, `wt-se-balancing`, `wt-se-block-in-space`) and `runtime-global` (`wt-power-mk1..3`, `wt-locked-power`, `wt-vary-windspeed`, `wt-reference-wind-speed`, `wt-auto-calibrate-wsc`, `wt-max-wind-multiplier`, `wt-update-interval`) settings with full English localization (`locale/en/base.cfg`).
 - Added `data-final-fixes.lua` Space Exploration `>= 0.7.0` integration enforcing `se_allow_in_space = false`, 2.1 `space_tile` collision mask, self-contained placement restriction tooltips, and SE technology alignment (`se-rocket-science-pack` for Mk3).
+- Added modular Factorio 2.1 runtime engine (`lib/turbine_manager.lua`) using `storage`, entity-bound `LuaRenderObject` animations, per-surface wind caching with O(1) idle/unchanged skipping, SE `0.7.64` multi-surface airless detection (`get_surface_type`), and live `WindSpeedChanging >= 2.1.2` auto-calibration.
 
 ### Changed
 - Updated `info.json` to `ethanatos-windturbines-redux-2.1-se` targeting Factorio `2.1` (`base >= 2.1.0`, `? WindSpeedChanging >= 2.1.2`, `(?) space-exploration >= 0.7.0`).
 - Migrated all animations, entities, items, recipes, and technologies to Factorio 2.1 syntax (removed `hr_version`, array `collision_mask`, string `enabled = "false"`, and `recipe.result`; updated asset paths to `__ethanatos-windturbines-redux-2.1-se__`).
+- Rewrote `control.lua` as a thin event dispatcher with Factorio 2.1 engine-level entity filters, full build/revive/clone/destroy/surface lifecycle handlers, dynamic `on_nth_tick` registration (`wt-update-interval`), and dynamic electric buffer scaling so high-wind gusts are never clamped.
 - Rewrote `README.md` with concise player/operator documentation, settings summary, SE & `WindSpeedChanging` compatibility notes, upstream credits (`OwnlyMe` and `Seth401`), and the AI-generated code disclaimer.
+
+### Fixed
+- Fixed legacy wind-orientation modulo bug (`% 31` -> `% 32`) so all 32 directional rotor/shadow sprites are reachable without heading discontinuity (and snapped cleanly to the 16 even rotations in Low-VRAM mode).
+- Fixed legacy `control.lua` duplicate `on_entity_died` registration, accidental global `SCRIPT_KILL`, Factorio 1.1 `global`/`created_entity`/`rendering.destroy` usage, and stale state handling across surface clears/deletions and configuration changes.
 
 ### Removed
 - Removed temporary upstream audit extract `_seth401_diff.tmp` after capturing all `Seth401` improvements in `SPEC.md`.

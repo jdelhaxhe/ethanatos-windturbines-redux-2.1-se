@@ -46,3 +46,7 @@ Keep entry-point files clean and modular by delegating thematic logic to `protot
 - **No autonomous Git mutations:** Never execute `git commit`, `git push`, `git reset`, or branch-switching commands without explicit user confirmation.
 - **Dirty working tree check:** Before starting a multi-file modification or refactor, check `git status` and warn if uncommitted changes exist so work can be committed first.
 - **Commit message suggestions:** At the end of every completed implementation task in Act mode, when the task is verified (`SPEC.md` and `CHANGELOG.md` up to date), provide a concise, ready-to-copy commit message in English following the **Conventional Commits** specification (`feat:`, `fix:`, `refactor:`, `docs:`, `chore:`), describing what changed and why. Never propose an intermediate commit for partial or incomplete work.
+
+## 8. Communication & Summary Style
+- **Balanced technical-player summaries:** When explaining completed phases, changes, or plans to the user, use an intermediate style that bridges gameplay impact and technical architecture.
+- For each major change, state **what it changes in-game** (gameplay, UI, settings, UPS, compatibility) alongside **the high-level technical mechanism and affected file/module**, avoiding both overly abstract jargon dumps and overly simplified non-technical summaries.
