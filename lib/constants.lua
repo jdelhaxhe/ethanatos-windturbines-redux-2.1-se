@@ -33,9 +33,10 @@ local constants = {
   -- Reference vertical drawing extension at 1.0x scale to avoid tall-tower pop-in at screen bottom.
   BASE_DRAWING_BOX_VERTICAL_EXTENSION = 24,
 
-  -- Subtle cursor-held spacing overlay styling (rendered on ground for the holding player only).
-  OVERLAY_FILL_COLOR = { r = 0.95, g = 0.55, b = 0.10, a = 0.09 },
-  OVERLAY_BORDER_COLOR = { r = 1.00, g = 0.65, b = 0.15, a = 0.48 },
+  -- Subtle premultiplied-alpha colors for the ground spacing overlay (Factorio LuaRendering uses
+  -- premultiplied RGBA, so RGB values are multiplied by `a` to avoid neon additive glow).
+  OVERLAY_FILL_COLOR = { r = 0.108, g = 0.012, b = 0.012, a = 0.12 },
+  OVERLAY_BORDER_COLOR = { r = 0.475, g = 0.075, b = 0.075, a = 0.50 },
   OVERLAY_BORDER_WIDTH = 2,
 
   SETTINGS = {
