@@ -8,6 +8,7 @@ Version: 0.20.0
     - Added Space Exploration 0.7 data-final-fixes integration (se_allow_in_space = false, 2.1 space_tile collision layer, placement tooltips, and SE tech alignment with Mk3 at Rocket Science Pack).
     - Rewrote runtime control stage (control.lua + lib/turbine_manager.lua) for Factorio 2.1 using storage, entity-bound LuaRenderObject animations, engine-level event filters, dynamic on_nth_tick scheduling, per-surface wind caching (O(1) idle skipping), Space Exploration multi-surface airless detection, and live WindSpeedChanging 2.1.2 auto-calibration.
   Changes:
+    - Dynamically aligned Wind Turbine Mk1-Mk3 item and recipe UI ordering immediately to the right of solar panels in data-final-fixes.
     - Renamed internal mod ID to ethanatos-windturbines-redux-2.1-se and introduced a dedicated wt-turbine-spacing collision layer.
     - Dynamically scaled electric_buffer_size alongside power_production so high-wind peaks above 100% are never clamped.
     - Updated SPEC.md, README.md, and added CHANGELOG.md with full upstream credits and AI-generated code disclaimer.

@@ -18,6 +18,7 @@ Upstream lineage: originally created by **OwnlyMe** (`windturbines`), extended w
 - Added modular Factorio 2.1 runtime engine (`lib/turbine_manager.lua`) using `storage`, entity-bound `LuaRenderObject` animations, per-surface wind caching with O(1) idle/unchanged skipping, SE `0.7.64` multi-surface airless detection (`get_surface_type`), and live `WindSpeedChanging >= 2.1.2` auto-calibration.
 
 ### Changed
+- Updated `data-final-fixes.lua` (`utils.align_turbines_after_solar_panels`) to dynamically place Wind Turbine Mk1–Mk3 item and recipe icons immediately to the right of solar panels in the UI across both Vanilla and overhaul modpacks (such as Space Exploration / AAI Industry).
 - Updated `info.json` to `ethanatos-windturbines-redux-2.1-se` targeting Factorio `2.1` (`base >= 2.1.0`, `? WindSpeedChanging >= 2.1.2`, `(?) space-exploration >= 0.7.0`).
 - Migrated all animations, entities, items, recipes, and technologies to Factorio 2.1 syntax (removed `hr_version`, array `collision_mask`, string `enabled = "false"`, and `recipe.result`; updated asset paths to `__ethanatos-windturbines-redux-2.1-se__`).
 - Rewrote `control.lua` as a thin event dispatcher with Factorio 2.1 engine-level entity filters, full build/revive/clone/destroy/surface lifecycle handlers, dynamic `on_nth_tick` registration (`wt-update-interval`), and dynamic electric buffer scaling so high-wind gusts are never clamped.

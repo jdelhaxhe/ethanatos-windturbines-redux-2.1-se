@@ -65,7 +65,7 @@ All functional improvements introduced across `Seth401`'s 18 commits are retaine
   3. `ownly_wind_turbine_collision_box_mkN` (`simple-entity-with-force`, `hidden = true`, `selectable_in_game = false`): `33x33` spacing blocker using only `{ layers = { ["wt-turbine-spacing"] = true } }`.
 
 ### 4.3 Items, Recipes & Technologies (`prototypes/items.lua`, `prototypes/recipes.lua`, `prototypes/technologies.lua`)
-- **Items:** `ownly_wind_turbine_mk1..3` (`subgroup = "energy"`, `order = "d[solar-panel]-a[wind-turbine]-1..3"`, `stack_size = 20`, `place_result = "ownly_wind_turbine_build_mk1..3"`).
+- **Items:** `ownly_wind_turbine_mk1..3` (`subgroup = "energy"`, fallback `order = "d[solar-panel]-z[wind-turbine]-1..3"`, `stack_size = 20`, `place_result = "ownly_wind_turbine_build_mk1..3"`). In `data-final-fixes.lua`, `utils.align_turbines_after_solar_panels` dynamically anchors both items and recipes to the subgroup and `order` immediately following the last solar panel (`... -z[wind-turbine]-1..3`).
 - **Recipes (Factorio 2.1 `ingredients` / `results` format, `enabled = false`, `energy_required = 30`):**
   - **Mk1:** 40 `plastic-bar`, 50 `steel-plate`, 120 `copper-cable`, 25 `electronic-circuit` -> 1 `ownly_wind_turbine_mk1`.
   - **Mk2:** 3 `ownly_wind_turbine_mk1`, 10 `electric-engine-unit`, 25 `advanced-circuit` -> 1 `ownly_wind_turbine_mk2`.
