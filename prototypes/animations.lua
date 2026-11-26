@@ -1,4 +1,4 @@
---- 32-direction rotor and shadow animation prototypes (HD or Low-VRAM LD).
+--- Per-tier 32-direction rotor and shadow animation prototypes (HD or Low-VRAM LD).
 --- Loading phase: data.
 
 local constants = require("lib.constants")
@@ -17,25 +17,29 @@ local function resolve_rotation_index(index)
   return index
 end
 
---- Builds the 32 shadow animation prototypes shared by all turbine tiers.
+--- Builds the 32 shadow animation prototypes scaled to a single turbine tier.
+--- Factorio deduplicates identical PNG filenames in the sprite atlas, so per-tier
+--- shadow prototypes add zero extra VRAM.
+---@param tier TurbineTierSpec
 ---@return table[]
-local function build_shadow_animations()
+local function build_tier_shadow_animations(tier)
   local prototypes = {}
   local width = low_vram and 400 or 800
   local height = low_vram and 200 or 400
-  local scale = low_vram and 4 or 2
+  local scale = (low_vram and 4 or 2) * tier.visual_scale
+  local shift = constants.scale_offset(constants.BLADES_SHADOW_OFFSET, tier.visual_scale)
 
   for index = 0, constants.ROTATION_COUNT - 1 do
     local rotation = resolve_rotation_index(index)
     table.insert(prototypes, {
       type = "animation",
-      name = "ownly_wind_turbine_shadow_" .. index,
+      name = "ownly_wind_turbine_shadow_mk" .. tier.level .. "_" .. index,
       filename = constants.ASSET_PATH .. quality_dir .. "/shadows/" .. rotation .. ".png",
       width = width,
       height = height,
       frame_count = constants.FRAME_COUNT,
       line_length = 5,
-      shift = constants.BLADES_SHADOW_OFFSET,
+      shift = utils.deep_copy(shift),
       animation_speed = 1,
       draw_as_shadow = true,
       scale = scale,
@@ -45,14 +49,15 @@ local function build_shadow_animations()
   return prototypes
 end
 
---- Builds the 32 rotor animation prototypes for a single turbine tier.
+--- Builds the 32 rotor animation prototypes scaled to a single turbine tier.
 ---@param tier TurbineTierSpec
 ---@return table[]
 local function build_tier_rotor_animations(tier)
   local prototypes = {}
   local width = low_vram and 300 or 600
   local height = low_vram and 400 or 800
-  local scale = low_vram and 2 or 1
+  local scale = (low_vram and 2 or 1) * tier.visual_scale
+  local shift = constants.scale_offset(constants.BLADES_OFFSET, tier.visual_scale)
 
   for index = 0, constants.ROTATION_COUNT - 1 do
     local rotation = resolve_rotation_index(index)
@@ -64,7 +69,7 @@ local function build_tier_rotor_animations(tier)
       height = height,
       frame_count = constants.FRAME_COUNT,
       line_length = 6,
-      shift = constants.BLADES_OFFSET,
+      shift = utils.deep_copy(shift),
       animation_speed = 1,
       scale = scale,
     })
@@ -73,8 +78,7 @@ local function build_tier_rotor_animations(tier)
   return prototypes
 end
 
-data:extend(build_shadow_animations())
-
 for _, tier in ipairs(constants.TIERS) do
+  data:extend(build_tier_shadow_animations(tier))
   data:extend(build_tier_rotor_animations(tier))
 end

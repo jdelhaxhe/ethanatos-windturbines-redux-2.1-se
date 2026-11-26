@@ -1,4 +1,4 @@
---- Startup and runtime-global mod settings definitions.
+--- Startup, runtime-global, and runtime-per-user mod settings definitions.
 --- Loading phase: settings.
 
 local constants = require("lib.constants")
@@ -26,6 +26,33 @@ data:extend({
     setting_type = "startup",
     default_value = true,
     order = "a-c",
+  },
+  {
+    type = "int-setting",
+    name = S.SPACING_MK1,
+    setting_type = "startup",
+    default_value = 18,
+    minimum_value = 5,
+    maximum_value = 50,
+    order = "a-d",
+  },
+  {
+    type = "int-setting",
+    name = S.SPACING_MK2,
+    setting_type = "startup",
+    default_value = 23,
+    minimum_value = 5,
+    maximum_value = 50,
+    order = "a-e",
+  },
+  {
+    type = "int-setting",
+    name = S.SPACING_MK3,
+    setting_type = "startup",
+    default_value = 30,
+    minimum_value = 5,
+    maximum_value = 50,
+    order = "a-f",
   },
 
   -- Runtime-global power output settings (kW at 1.0x reference wind speed)
@@ -105,6 +132,15 @@ data:extend({
     minimum_value = 5,
     maximum_value = 600,
     order = "d-a",
+  },
+
+  -- Runtime-per-user placement UI settings
+  {
+    type = "bool-setting",
+    name = S.SHOW_SPACING_OVERLAY,
+    setting_type = "runtime-per-user",
+    default_value = true,
+    order = "e-a",
   },
 })
 

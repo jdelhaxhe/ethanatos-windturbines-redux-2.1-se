@@ -2,6 +2,7 @@
 --- Loading phase: control.
 
 local constants = require("lib.constants")
+local spacing_overlay = require("lib.spacing_overlay")
 local S = constants.SETTINGS
 
 local ROTATION_COUNT = constants.ROTATION_COUNT
@@ -13,7 +14,8 @@ local WIND_EPSILON = constants.WIND_EPSILON
 
 ---@class TurbineRecord
 ---@field base LuaEntity
----@field collision_box LuaEntity?
+---@field collision_box LuaEntity? Legacy single-box field migrated on configuration change.
+---@field collision_boxes table<uint8, LuaEntity>?
 ---@field surface_index uint32
 ---@field level uint8
 ---@field orientation uint8
@@ -58,10 +60,14 @@ for _, tier in ipairs(constants.TIERS) do
   TIER_BY_LEVEL[tier.level] = tier
   BUILD_LEVEL_BY_NAME[tier.build_name] = tier.level
   ACTIVE_LEVEL_BY_NAME[tier.name] = tier.level
-  COLLISION_BOX_NAMES[tier.collision_box_name] = true
   ACTIVE_TURBINE_NAMES[#ACTIVE_TURBINE_NAMES + 1] = tier.name
   BUILD_TURBINE_NAMES[#BUILD_TURBINE_NAMES + 1] = tier.build_name
-  COLLISION_BOX_NAME_LIST[#COLLISION_BOX_NAME_LIST + 1] = tier.collision_box_name
+
+  for _, target_tier in ipairs(constants.TIERS) do
+    local box_name = constants.spacing_box_name(tier.level, target_tier.level)
+    COLLISION_BOX_NAMES[box_name] = true
+    COLLISION_BOX_NAME_LIST[#COLLISION_BOX_NAME_LIST + 1] = box_name
+  end
 end
 
 ---@type table<string, boolean>
@@ -155,11 +161,12 @@ local function rotor_animation_name(level, orientation)
   return "ownly_wind_turbine_mk" .. level .. "_" .. orientation
 end
 
---- Builds the shadow animation prototype name for a discrete orientation.
+--- Builds the shadow animation prototype name for a tier and discrete orientation.
+---@param level uint8
 ---@param orientation uint8
 ---@return string
-local function shadow_animation_name(orientation)
-  return "ownly_wind_turbine_shadow_" .. orientation
+local function shadow_animation_name(level, orientation)
+  return "ownly_wind_turbine_shadow_mk" .. level .. "_" .. orientation
 end
 
 --- Determines whether a surface is a solid planetary/lunar surface under SE rules.
@@ -227,16 +234,16 @@ local function destroy_render(render_obj)
   end
 end
 
---- Creates the hidden 33x33 spacing collision box anchored at the turbine center.
+--- Creates one hidden spacing collision box anchored at the turbine center for `target_level`.
 ---@param surface LuaSurface
 ---@param position MapPosition
 ---@param force ForceID
----@param level uint8
+---@param source_level uint8
+---@param target_level uint8
 ---@return LuaEntity?
-local function create_collision_box(surface, position, force, level)
-  local tier = TIER_BY_LEVEL[level]
+local function create_collision_box(surface, position, force, source_level, target_level)
   local box = surface.create_entity({
-    name = tier.collision_box_name,
+    name = constants.spacing_box_name(source_level, target_level),
     position = position,
     force = force,
     raise_built = false,
@@ -250,7 +257,42 @@ local function create_collision_box(surface, position, force, level)
   return box
 end
 
---- Draws entity-bound rotor and shadow LuaRenderObjects for an active turbine.
+--- Creates all per-target-tier spacing boxes beneath a `source_level` turbine.
+---@param surface LuaSurface
+---@param position MapPosition
+---@param force ForceID
+---@param source_level uint8
+---@return table<uint8, LuaEntity>
+local function create_collision_boxes(surface, position, force, source_level)
+  local boxes = {}
+  for _, target_tier in ipairs(constants.TIERS) do
+    local box = create_collision_box(surface, position, force, source_level, target_tier.level)
+    if box and box.valid then
+      boxes[target_tier.level] = box
+    end
+  end
+  return boxes
+end
+
+--- Destroys all spacing boxes tracked on a turbine record (including any legacy single box).
+---@param record TurbineRecord
+local function destroy_record_collision_boxes(record)
+  if record.collision_box and record.collision_box.valid then
+    record.collision_box.destroy({ raise_destroy = false })
+  end
+  record.collision_box = nil
+
+  if record.collision_boxes then
+    for _, box in pairs(record.collision_boxes) do
+      if box and box.valid then
+        box.destroy({ raise_destroy = false })
+      end
+    end
+    record.collision_boxes = nil
+  end
+end
+
+--- Draws entity-bound rotor and shadow LuaRenderObjects scaled to the turbine tier.
 ---@param base LuaEntity
 ---@param level uint8
 ---@param orientation uint8
@@ -258,9 +300,11 @@ end
 ---@param anim_offset double
 ---@return LuaRenderObject, LuaRenderObject
 local function create_renders(base, level, orientation, anim_speed, anim_offset)
+  local scale = TIER_BY_LEVEL[level].visual_scale
+
   local turbine_render = rendering.draw_animation({
     animation = rotor_animation_name(level, orientation),
-    target = { entity = base, offset = constants.RENDER_TURBINE_OFFSET },
+    target = { entity = base, offset = constants.scale_offset(constants.RENDER_TURBINE_OFFSET, scale) },
     surface = base.surface,
     animation_speed = anim_speed,
     animation_offset = anim_offset,
@@ -268,8 +312,8 @@ local function create_renders(base, level, orientation, anim_speed, anim_offset)
   })
 
   local shadow_render = rendering.draw_animation({
-    animation = shadow_animation_name(orientation),
-    target = { entity = base, offset = constants.RENDER_SHADOW_OFFSET },
+    animation = shadow_animation_name(level, orientation),
+    target = { entity = base, offset = constants.scale_offset(constants.RENDER_SHADOW_OFFSET, scale) },
     surface = base.surface,
     animation_speed = anim_speed,
     animation_offset = anim_offset,
@@ -292,13 +336,28 @@ local function apply_turbine_power(record, wind_state, config)
   base.power_production = actual_watts / 60
 end
 
---- Ensures a valid turbine record still owns valid collision box and render objects.
+--- Ensures a valid turbine record still owns valid spacing boxes and render objects.
 ---@param record TurbineRecord
 ---@param wind_state SurfaceWindCache
 local function ensure_record_attachments(record, wind_state)
   local base = record.base
-  if not (record.collision_box and record.collision_box.valid) then
-    record.collision_box = create_collision_box(base.surface, base.position, base.force, record.level)
+  if record.collision_box and record.collision_box.valid then
+    record.collision_box.destroy({ raise_destroy = false })
+  end
+  record.collision_box = nil
+
+  record.collision_boxes = record.collision_boxes or {}
+  for _, target_tier in ipairs(constants.TIERS) do
+    local box = record.collision_boxes[target_tier.level]
+    if not (box and box.valid) then
+      record.collision_boxes[target_tier.level] = create_collision_box(
+        base.surface,
+        base.position,
+        base.force,
+        record.level,
+        target_tier.level
+      )
+    end
   end
 
   local turbine_valid = record.turbine_render and record.turbine_render.valid
@@ -334,7 +393,7 @@ local function apply_turbine_visuals(record, wind_state, tick)
   -- 1. Update heading sprites only when the discrete orientation step changed.
   if record.orientation ~= wind_state.orientation then
     turbine_render.animation = rotor_animation_name(record.level, wind_state.orientation)
-    shadow_render.animation = shadow_animation_name(wind_state.orientation)
+    shadow_render.animation = shadow_animation_name(record.level, wind_state.orientation)
     record.orientation = wind_state.orientation
   end
 
@@ -354,7 +413,7 @@ local function apply_turbine_visuals(record, wind_state, tick)
   end
 end
 
---- Removes a turbine record, destroys its renders and collision box, and prunes empty surface maps.
+--- Removes a turbine record, destroys its renders and spacing boxes, and prunes empty surface maps.
 ---@param unit_number uint32
 local function cleanup_turbine_record(unit_number)
   local record = storage.turbines[unit_number]
@@ -364,10 +423,7 @@ local function cleanup_turbine_record(unit_number)
 
   destroy_render(record.turbine_render)
   destroy_render(record.shadow_render)
-
-  if record.collision_box and record.collision_box.valid then
-    record.collision_box.destroy({ raise_destroy = false })
-  end
+  destroy_record_collision_boxes(record)
 
   local surface_index = record.surface_index
   local surface_turbines = storage.turbines_by_surface[surface_index]
@@ -380,9 +436,10 @@ local function cleanup_turbine_record(unit_number)
   end
 
   storage.turbines[unit_number] = nil
+  spacing_overlay.on_turbine_removed(unit_number, surface_index)
 end
 
---- Registers an active `ownly_wind_turbine_mkN` entity, attaching its box, renders, and power state.
+--- Registers an active `ownly_wind_turbine_mkN` entity, attaching its spacing boxes, renders, and power state.
 ---@param base LuaEntity
 ---@param level uint8
 local function register_active_turbine(base, level)
@@ -402,8 +459,8 @@ local function register_active_turbine(base, level)
   local config = read_runtime_config()
   local wind_state = compute_surface_wind_state(surface, config)
 
-  -- 2. Create spacing collision box and entity-bound rotor/shadow animations.
-  local collision_box = create_collision_box(surface, base.position, base.force, level)
+  -- 2. Create per-target-tier spacing boxes and entity-bound rotor/shadow animations.
+  local collision_boxes = create_collision_boxes(surface, base.position, base.force, level)
   local turbine_render, shadow_render = create_renders(
     base,
     level,
@@ -415,7 +472,7 @@ local function register_active_turbine(base, level)
   ---@type TurbineRecord
   local record = {
     base = base,
-    collision_box = collision_box,
+    collision_boxes = collision_boxes,
     surface_index = surface_index,
     level = level,
     orientation = wind_state.orientation,
@@ -425,7 +482,7 @@ local function register_active_turbine(base, level)
     last_offset = 0,
   }
 
-  -- 3. Index in `storage` and apply initial power/buffer settings.
+  -- 3. Index in `storage`, apply initial power/buffer settings, and update active cursor overlays.
   storage.turbines[unit_number] = record
   local surface_turbines = storage.turbines_by_surface[surface_index]
   local is_first_on_surface = (surface_turbines == nil)
@@ -441,6 +498,7 @@ local function register_active_turbine(base, level)
   end
 
   apply_turbine_power(record, wind_state, config)
+  spacing_overlay.on_turbine_added(record)
 end
 
 --- Replaces a placed `ownly_wind_turbine_build_mkN` proxy entity with the active turbine tower.
@@ -522,7 +580,7 @@ local function update_surface_turbines(surface, surface_index, surface_turbines,
   end
 end
 
---- Rebuilds surface index and removes invalid records during configuration reconciliation.
+--- Rebuilds surface index, migrates spacing boxes/renders, and removes invalid records on config change.
 local function reconcile_tracked_records()
   storage.turbines_by_surface = {}
 
@@ -533,8 +591,16 @@ local function reconcile_tracked_records()
     else
       local surface_index = record.base.surface.index
       record.surface_index = surface_index
-      -- Force orientation re-evaluation in case `wt-low-vram` changed across save load.
       record.orientation = 255
+
+      -- Destroy existing renders and legacy boxes so the full sync pass rebuilds them with
+      -- the current tier visual scales, offsets, shadow prototypes, and spacing settings.
+      destroy_render(record.turbine_render)
+      destroy_render(record.shadow_render)
+      record.turbine_render = nil
+      record.shadow_render = nil
+      destroy_record_collision_boxes(record)
+      record.collision_boxes = {}
 
       local surface_turbines = storage.turbines_by_surface[surface_index]
       if not surface_turbines then
@@ -577,14 +643,18 @@ local function reconcile_surface_entities(surface)
     end
   end
 
-  -- 3. Remove orphaned collision boxes not referenced by any tracked turbine on this surface.
+  -- 3. Remove orphaned spacing boxes not referenced by any tracked turbine on this surface.
   local owned_boxes = {}
   local surface_turbines = storage.turbines_by_surface[surface.index]
   if surface_turbines then
     for unit_number in pairs(surface_turbines) do
       local record = storage.turbines[unit_number]
-      if record and record.collision_box and record.collision_box.valid and record.collision_box.unit_number then
-        owned_boxes[record.collision_box.unit_number] = true
+      if record and record.collision_boxes then
+        for _, box in pairs(record.collision_boxes) do
+          if box and box.valid and box.unit_number then
+            owned_boxes[box.unit_number] = true
+          end
+        end
       end
     end
   end
@@ -623,6 +693,7 @@ function M.on_configuration_changed()
   -- Clear wind cache after entity reconciliation so every tracked turbine receives a full sync pass.
   storage.surface_wind = {}
   M.update_turbines()
+  spacing_overlay.refresh_all_players()
 end
 
 --- Handles built and revived wind turbine entities.
@@ -704,6 +775,7 @@ function M.on_surface_invalidated(event)
   storage.turbines_by_surface[surface_index] = nil
   storage.surface_wind[surface_index] = nil
   storage.surface_is_solid[surface_index] = nil
+  spacing_overlay.on_surface_invalidated(surface_index)
 end
 
 --- Reacts to runtime-global setting changes (including WindSpeedChanging live calibration).

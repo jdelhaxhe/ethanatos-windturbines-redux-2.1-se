@@ -5,9 +5,12 @@ Version: 0.20.0
   Features:
     - Migrated metadata, settings, localization, and all prototypes (collision layers, animations, entities, items, recipes, technologies) to Factorio 2.1.
     - Added per-tier nominal power settings (Mk1/Mk2/Mk3), wind calibration settings, runtime update interval setting, and Space Exploration 0.7 balancing/space-blocking toggles.
-    - Added Space Exploration 0.7 data-final-fixes integration (se_allow_in_space = false, 2.1 space_tile collision layer, placement tooltips, and SE tech alignment with Mk3 at Rocket Science Pack).
+    - Added Space Exploration 0.7 data-final-fixes integration (se_allow_in_space = false, 2.1 space_tile collision layer, placement tooltips, se-aeroframe-pole Mk3 recipe override, and SE tech alignment with Mk2 at Rocket Science Pack and Mk3 at Utility Science Pack + Aeroframe Pole including se-rocket-science-pack and space-science-pack).
+    - Added per-tier visual scaling (0.75x Mk1, 1.00x Mk2, 1.30x Mk3) with uniform 3x3 grid alignment, configurable startup spacing settings (wt-spacing-mk1..3, defaults 18/23/30 tiles) using symmetric sum-of-radii mixed-tier clearance across three custom collision layers, and spacing tooltips.
+    - Added a toggleable per-player cursor spacing overlay (wt-show-spacing-overlay) rendering exact ground exclusion zones while holding a turbine item or ghost (0 UPS idle).
     - Rewrote runtime control stage (control.lua + lib/turbine_manager.lua) for Factorio 2.1 using storage, entity-bound LuaRenderObject animations, engine-level event filters, dynamic on_nth_tick scheduling, per-surface wind caching (O(1) idle skipping), Space Exploration multi-surface airless detection, and live WindSpeedChanging 2.1.2 auto-calibration.
   Changes:
+    - Rebalanced Mk1/Mk2/Mk3 recipes (100 concrete on Mk1; 2x previous-tier upgrade chain instead of 3x; 4 LDS/se-aeroframe-pole + 4 processing units + 4 electric-engine-unit on Mk3) and updated technology prerequisites.
     - Dynamically aligned Wind Turbine Mk1-Mk3 item and recipe UI ordering immediately to the right of solar panels in data-final-fixes.
     - Renamed internal mod ID to ethanatos-windturbines-redux-2.1-se and introduced a dedicated wt-turbine-spacing collision layer.
     - Dynamically scaled electric_buffer_size alongside power_production so high-wind peaks above 100% are never clamped.

@@ -2,6 +2,7 @@
 --- Loading phase: control.
 
 local constants = require("lib.constants")
+local spacing_overlay = require("lib.spacing_overlay")
 local turbine_manager = require("lib.turbine_manager")
 
 local S = constants.SETTINGS
@@ -83,8 +84,16 @@ script.on_event(defines.events.script_raised_destroy, turbine_manager.on_entity_
 script.on_event(defines.events.on_surface_deleted, turbine_manager.on_surface_invalidated)
 script.on_event(defines.events.on_surface_cleared, turbine_manager.on_surface_invalidated)
 
+-- Player cursor spacing overlay events (0 UPS when no turbine is held)
+script.on_event(defines.events.on_player_cursor_stack_changed, spacing_overlay.on_player_state_changed)
+script.on_event(defines.events.on_player_changed_surface, spacing_overlay.on_player_state_changed)
+script.on_event(defines.events.on_player_joined_game, spacing_overlay.on_player_state_changed)
+script.on_event(defines.events.on_player_left_game, spacing_overlay.on_player_left)
+script.on_event(defines.events.on_player_removed, spacing_overlay.on_player_left)
+
 -- Live runtime setting synchronization
 script.on_event(defines.events.on_runtime_mod_setting_changed, function(event)
+  spacing_overlay.on_player_setting_changed(event.player_index, event.setting)
   if turbine_manager.on_runtime_mod_setting_changed(event) then
     register_tick_handlers()
   end

@@ -1,11 +1,14 @@
---- Custom Factorio 2.1 collision layer for inter-turbine spacing.
+--- Custom Factorio 2.1 per-tier collision layers for symmetric inter-turbine spacing.
 --- Loading phase: data.
 
 local constants = require("lib.constants")
 
-data:extend({
-  {
+local layers = {}
+for _, tier in ipairs(constants.TIERS) do
+  table.insert(layers, {
     type = "collision-layer",
-    name = constants.SPACING_COLLISION_LAYER,
-  },
-})
+    name = tier.spacing_layer,
+  })
+end
+
+data:extend(layers)

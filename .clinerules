@@ -3,7 +3,7 @@
 ## 1. Workspace Isolation & External Sources
 - The current directory (`./`) is the mod root (`ethanatos-windturbines-redux-2.1-se`).
 - Only the following directories in `../_sources_mods/` may be accessed in read-only mode:
-  - `../_sources_mods/space-exploration/`
+  - `../_sources_mods/space-exploration_0.7.64/`
   - `../_sources_mods/WindSpeedChanging_2.1.2/`
 - Never modify, create, or delete files inside `../_sources_mods/`.
 - Never access any other sibling folder in `../` (such as `../ethanatos-bob-se-patch/` or `../_sources_mods/bob*`).

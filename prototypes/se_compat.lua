@@ -41,6 +41,31 @@ local function apply_se_technology_balancing()
   end
 end
 
+--- Applies Space Exploration recipe overrides (e.g., `se-aeroframe-pole` on Mk3)
+--- when all required SE items exist in `data.raw.item`.
+local function apply_se_recipe_overrides()
+  local recipes = data.raw and data.raw.recipe
+  local items = data.raw and data.raw.item
+  if not (recipes and items) then
+    return
+  end
+
+  for _, tier in ipairs(constants.TIERS) do
+    if tier.se_ingredients and recipes[tier.name] then
+      local all_exist = true
+      for _, ingredient in ipairs(tier.se_ingredients) do
+        if not items[ingredient.name] then
+          all_exist = false
+          break
+        end
+      end
+      if all_exist then
+        recipes[tier.name].ingredients = utils.deep_copy(tier.se_ingredients)
+      end
+    end
+  end
+end
+
 --- Entry point executed from data-final-fixes.lua when space-exploration is active.
 function se_compat.apply()
   if not mods["space-exploration"] then
@@ -53,6 +78,7 @@ function se_compat.apply()
 
   if utils.is_startup_enabled(constants.SETTINGS.SE_BALANCING, true) then
     apply_se_technology_balancing()
+    apply_se_recipe_overrides()
   end
 end
 
