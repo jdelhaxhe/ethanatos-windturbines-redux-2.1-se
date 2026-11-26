@@ -13,6 +13,8 @@ Version: 0.20.0
     - Updated SPEC.md, README.md, and added CHANGELOG.md with full upstream credits and AI-generated code disclaimer.
     - Removed legacy Factorio 1.1 root entities.lua and incompatible 1.1 migration scripts ahead of the modular 2.1 rewrite.
   Bugfixes:
+    - Fixed a runtime crash on turbine placement in Factorio 2.1 by using LuaEntity::minable_flag instead of read-only LuaEntity::minable.
+    - Fixed wind turbine technologies having empty science pack requirements in Factorio 2.1 with Space Exploration tech balancing enabled (Factorio 2.1 moved science packs from data.raw.tool to data.raw.item).
     - Fixed wind orientation modulo (% 31 -> % 32) so all 32 directional sprites are reachable without heading jumps (snapping to 16 even steps in Low-VRAM mode).
     - Fixed legacy duplicate on_entity_died registration, global SCRIPT_KILL variable, and Factorio 1.1 runtime API usage (global, created_entity, rendering.destroy).
 

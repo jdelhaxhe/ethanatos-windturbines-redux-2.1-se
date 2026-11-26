@@ -159,9 +159,14 @@ constants.TIERS = {
         pack("utility-science-pack"),
       },
     },
-    -- SE Option A: unlocks Mk3 with processing-unit (se-rocket-science-pack) for planetary outposts.
+    -- SE Option A: unlocks Mk3 with processing-unit + se-rocket-science-pack for planetary outposts.
     se_tech = {
-      prerequisites = { "ownly_wind_turbine_mk2", "low-density-structure", "processing-unit" },
+      prerequisites = {
+        "ownly_wind_turbine_mk2",
+        "low-density-structure",
+        "processing-unit",
+        "se-rocket-science-pack",
+      },
       count = 500,
       time = 30,
       ingredients = {

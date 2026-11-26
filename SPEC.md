@@ -77,7 +77,7 @@ All functional improvements introduced across `Seth401`'s 18 commits are retaine
 - **SE-Balanced Technologies (`space-exploration` active and `wt-se-balancing = true`):**
   - **Mk1:** Prereqs `{ "plastics", "electric-energy-distribution-1" }`, 200x (`automation`, `logistic`), `time = 30`.
   - **Mk2:** Prereqs `{ "ownly_wind_turbine_mk1", "electric-engine" }`, 350x (`automation`, `logistic`, `chemical`), `time = 30`.
-  - **Mk3:** Prereqs `{ "ownly_wind_turbine_mk2", "low-density-structure", "processing-unit" }`, 500x (`automation`, `logistic`, `chemical`, `se-rocket-science-pack`), `time = 30`. Positions Mk3 at early planetary/moon outpost expansion without requiring orbital Cryonite/Utility science.
+  - **Mk3:** Prereqs `{ "ownly_wind_turbine_mk2", "low-density-structure", "processing-unit", "se-rocket-science-pack" }`, 500x (`automation`, `logistic`, `chemical`, `se-rocket-science-pack`), `time = 30`. Positions Mk3 at early planetary/moon outpost expansion without requiring orbital Cryonite/Utility science.
 
 ## 5. Runtime Mechanics (`control.lua` & `lib/turbine_manager.lua`)
 

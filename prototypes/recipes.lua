@@ -2,6 +2,7 @@
 --- Loading phase: data.
 
 local constants = require("lib.constants")
+local utils = require("lib.utils")
 
 local recipes = {}
 for _, tier in ipairs(constants.TIERS) do
@@ -10,7 +11,7 @@ for _, tier in ipairs(constants.TIERS) do
     name = tier.name,
     energy_required = 30,
     enabled = false,
-    ingredients = tier.ingredients,
+    ingredients = utils.deep_copy(tier.ingredients),
     results = {
       { type = "item", name = tier.name, amount = 1 },
     },

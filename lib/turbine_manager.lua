@@ -244,7 +244,8 @@ local function create_collision_box(surface, position, force, level)
   })
   if box and box.valid then
     box.destructible = false
-    box.minable = false
+    -- Factorio 2.0/2.1 made `LuaEntity::minable` read-only; use `minable_flag` for runtime writes.
+    box.minable_flag = false
   end
   return box
 end

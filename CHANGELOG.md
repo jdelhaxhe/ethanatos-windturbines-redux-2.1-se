@@ -24,6 +24,8 @@ Upstream lineage: originally created by **OwnlyMe** (`windturbines`), extended w
 - Rewrote `README.md` with concise player/operator documentation, settings summary, SE & `WindSpeedChanging` compatibility notes, upstream credits (`OwnlyMe` and `Seth401`), and the AI-generated code disclaimer.
 
 ### Fixed
+- Fixed a runtime crash when placing wind turbines in Factorio 2.1 (`LuaEntity::minable is read only`): updated `create_collision_box` in `lib/turbine_manager.lua` to write `box.minable_flag = false`.
+- Fixed empty technology science pack costs in Factorio 2.1 when Space Exploration tech balancing (`wt-se-balancing`) is enabled: `utils.apply_technology_spec` previously checked only `data.raw.tool`, which filtered out all Factorio 2.1 `type = "item"` science packs; now checks both `data.raw.item` and `data.raw.tool`, preserves existing science packs if validation ever returns empty, adds `"se-rocket-science-pack"` as an explicit Mk3 SE prerequisite, and deep-copies recipe/technology tables from `lib/constants.lua`.
 - Fixed legacy wind-orientation modulo bug (`% 31` -> `% 32`) so all 32 directional rotor/shadow sprites are reachable without heading discontinuity (and snapped cleanly to the 16 even rotations in Low-VRAM mode).
 - Fixed legacy `control.lua` duplicate `on_entity_died` registration, accidental global `SCRIPT_KILL`, Factorio 1.1 `global`/`created_entity`/`rendering.destroy` usage, and stale state handling across surface clears/deletions and configuration changes.
 

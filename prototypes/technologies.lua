@@ -2,6 +2,7 @@
 --- Loading phase: data.
 
 local constants = require("lib.constants")
+local utils = require("lib.utils")
 
 local technologies = {}
 for _, tier in ipairs(constants.TIERS) do
@@ -11,7 +12,7 @@ for _, tier in ipairs(constants.TIERS) do
     name = tier.name,
     icon = tier.icon,
     icon_size = 144,
-    prerequisites = tech_spec.prerequisites,
+    prerequisites = utils.deep_copy(tech_spec.prerequisites),
     effects = {
       {
         type = "unlock-recipe",
@@ -20,7 +21,7 @@ for _, tier in ipairs(constants.TIERS) do
     },
     unit = {
       count = tech_spec.count,
-      ingredients = tech_spec.ingredients,
+      ingredients = utils.deep_copy(tech_spec.ingredients),
       time = tech_spec.time,
     },
   })

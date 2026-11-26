@@ -3,6 +3,40 @@
 
 local utils = {}
 
+--- Creates a deep copy of a Lua table or primitive value so prototype tables
+--- never share mutable references with shared configuration constants.
+---@generic T
+---@param value T
+---@return T
+function utils.deep_copy(value)
+  if type(value) ~= "table" then
+    return value
+  end
+  local copy = {}
+  for k, v in pairs(value) do
+    copy[utils.deep_copy(k)] = utils.deep_copy(v)
+  end
+  return copy
+end
+
+--- Checks whether a science pack prototype exists in `data.raw`.
+--- Factorio 2.1 migrated vanilla science packs from `type = "tool"` (`data.raw.tool`)
+--- to `type = "item"` (`data.raw.item`), while some modded packs may still use `tool`.
+---@param pack_name string
+---@return boolean
+function utils.science_pack_exists(pack_name)
+  if not (data and data.raw and pack_name) then
+    return false
+  end
+  if data.raw.item and data.raw.item[pack_name] then
+    return true
+  end
+  if data.raw.tool and data.raw.tool[pack_name] then
+    return true
+  end
+  return false
+end
+
 --- Safely reads a boolean startup setting with a fallback default.
 ---@param setting_name string
 ---@param default_value boolean
@@ -94,16 +128,20 @@ function utils.apply_technology_spec(tech_name, tech_spec)
   local valid_ingredients = {}
   for _, ingredient in ipairs(tech_spec.ingredients) do
     local pack_name = ingredient[1]
-    if data.raw.tool and data.raw.tool[pack_name] then
+    if utils.science_pack_exists(pack_name) then
       table.insert(valid_ingredients, { pack_name, ingredient[2] })
     end
   end
 
   tech.prerequisites = valid_prerequisites
+  -- Never wipe an existing technology's science packs to an empty list if validation fails.
+  local final_ingredients = #valid_ingredients > 0
+    and valid_ingredients
+    or (tech.unit and utils.deep_copy(tech.unit.ingredients) or {})
   tech.unit = {
     count = tech_spec.count,
     time = tech_spec.time,
-    ingredients = valid_ingredients,
+    ingredients = final_ingredients,
   }
 end
 
